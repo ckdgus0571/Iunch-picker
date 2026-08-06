@@ -1,0 +1,30 @@
+name: Update Lunch List
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 매일 오전 11시(KST) 자동 실행 (UTC 기준 02:00)
+  workflow_dispatch: {}    # Actions 탭에서 수동으로도 "Run workflow" 가능
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - run: python fetch_and_build.py
+        env:
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "자동 업데이트: 점심 리스트 갱신"
+          file_pattern: docs/index.html
